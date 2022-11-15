@@ -14,6 +14,7 @@ Este proyecto se aborda mediante 3 hitos:
 
 # Datos
 Data set: https://www.kaggle.com/datasets/jgiigii/uscrimesdataset
+Datos CSV utilizados (Actualización 14/11/2022): https://gitlab.com/ricardomillanaob1/datasets/-/tree/master
 
 Tambien se poseen los datos generados durante la ejecucion del proyecto
 
