@@ -21,3 +21,6 @@ Tambien se poseen los datos generados durante la ejecucion del proyecto
 
 # Video
 Para el Hito3 se realiza un video resumen: https://drive.google.com/file/d/1zfZTFtsrE9HO3cE1z-Q5T8WQf1PBhpTS/view?usp=share_link
+
+# Anexo
+HTML con graficos visibles: https://drive.google.com/file/d/1qQOC8IJBTg1sOb5pnacXovYhisafOH3T/view?usp=sharing
