@@ -1,0 +1,363 @@
+---
+title: "hito_1_G3"
+author: "Diego Garrido , Camilo Godoy , Ricardo Millanao , Nicolas Pereira"
+date: " 12 de Septiembre, 2022"
+output:
+  html_document:
+    number_sections: yes
+    theme: spacelab
+    toc: yes
+  pdf_document:
+    toc: yes
+---
+# Introduccion
+Durante el transcurso de los años han ocurrido una gran cantidad de crímenes en todas partes del mundo, y más aún en Estados Unidos, al ser una país tan grande con diversas policías  es muy difícil anticipar cualquier tipo de crimen que pueda suceder. De esta forma surge la pregunta; ¿De qué forma podríamos prevenir o anticipar un crimen en un estado o ciudad? Si tomamos los datos recopilados y que utilizaremos en este proyecto sería posible determinar dónde o cuándo ocurrirá un crimen y de esta forma implementar planes de contención o medidas de prevención
+
+En el siguiente data set tenemos una muestra de las emergencias a las cuales concurrió la policía en Estados Unidos, a que se debió el llamado, los diversos crímenes que se cometieron, la categoría de estos y la fecha donde se inició el proceso, por nombrar algunas
+
+Nuestro objetivo nace por la necesidad de crear una ciudadanía más segura, si bien esta muestra no es de nuestro país, consideramos que la seguridad es un tema transversal y este puede ser el inicio para la creación de medidas de prevención y seguridad universales
+
+# Análisis Exploratorio de Datos
+Para el análisis exploratorio se utilizó la colección de datos de crímenes en US, esta colección contiene datos desde el año 2016 hasta agosto del año 2022 , la cantidad total de crímenes registrados en estos años son de 306094.
+```{r}
+Crimes <- read.csv("https://gitlab.com/c.godoy09/mineria_datos/-/raw/main/Crimes_With_Dates_Cleaned.csv")
+```
+Las variables presentes en la colección se clasifican como variables cuantitaivas y variables cualitativas incluyendo el detalle de cada una de ellas como se muestra a continuación.
+
+**1.- Variables cuantitativas**
+
+- **Victims:** Representa el número de personas afectadas en el delito.
+- **Year:** Año del delito
+- **Month:** Mes que se realizó del delito
+- **Day:** Día que se realizó el delito.
+
+**2.- Variables Cualitativas**
+
+- **Incident.ID:** Número de registro del incidente.
+- **CR.Number:** Registro del delito.
+- **Zip.Code:** código de la ciudad donde se realizó el delito.
+- **Address.Number:** Número de la calle donde se realizó el delito.
+- **Latitude:** Coordenada de latitud de la ubicación del delito
+- **Longitude:** Coordenada de longitud de la ubicación del delito
+- **Offence.Code:** Código representativo del delito .
+- **Dispatch.Date...Time:** Momento en el que se enviaron a los agentes policiales.
+- **NIBRS.Code:** Código que representa el tipo de crimen.
+- **Crime.Name1:** Tipo De crimen cometido.
+- **Crime.Name2:** Categoría del crimen cometido.
+- **Crime.Name3:** Información del crimen cometido.
+- **Police.District.Name:** Nombre del distrito donde se cometió el delito.
+- **Block.Address:** Dirección donde el crimen fue cometido.
+- **City:** Ciudad donde ocurrió el crimen.
+- **State:** Estado donde se llevo acabo el crimen.
+- **Agency:** Es la agencia a cargo sobre el tipo de delito.
+- **Place:** Lugar donde se llevo acabo el delito (en la calle, una tienda , una casa, etc)
+- **Sector:** Lugar designado para ciertas patrullas
+- **Beat:** Policias designados al sector anterior.
+- **PRA:** Numero de unidad policial.
+- **Street.Prefix:** Indicación de la calle si es Norte, Sur, Este u Oeste.
+- **Street.Name:** Nombre de la calle .
+- **Street.Suffix:** Indicación de la calle si es Norte, Sur, Este u Oeste.
+- **Street.Type:** Indicador de si es AVE (Avenida), BLVD (Boulevard),,CT (callejon) , RD (carretera), ST (calle), entre otras.
+- **Start_Date_Time:** Tiempo de inicio del proceso.
+- **End_Date_Time:** Tiempo de Finalización del proceso.
+- **Police.District.Number:** Número del distrito policial.
+- **Location:** Ubicación mediante coordenadas.
+- **Year.Month:** Año y mes juntos como fecha.
+- **Committed_At_Morning:** Si es de mañana o tarde.
+
+Teniendo en cuenta todas las variables anteriores se presentan las mas destacadas para la exploracion.
+
+- **Victims:** La variable mencionada es de suma importancia para los estudios, con ello se puede abordar el problema de como poder disminuir la cantidad de delitos.
+- **Year** La variable mencionada es importante para crear una linea de  tiempo con los delitos acontecidos y de esta manera poder realizar el análisis respectivo.
+- **Committed_At_Morning**  Esta variable nos permite identificar si los delitos más recurrentes son dentro de la mañana o la tarde para orientarnos mejor en qué punto poder tomar medidas.
+- **Month** Esta variable nos permite definir si existe algún mes en particular que ocurran más delitos.
+- **Block.Address** Esta variable es importante en el momento que se quiere saber si existe alguna direccion recurrente a delitos
+- **City:** La variable mencionada nos permite obtener en qué ciudad ocurre la mayor cantidad de delitos.
+- **Crime.Name1:** , **Crime.Name2:** , **Crime.Name3:** los nombres del crimen son importantes para diferenciar cuales son los más recurrentes.
+
+
+Ahora en primera instancia, se revisa los datos de la colección con el fin de encontrar datos NA y proceder a limpiarlos
+
+```{r}
+#Existencia de NA
+library(dplyr)
+sapply(Crimes, function(x) sum((x)==''))
+```
+**las variables con más datos NA son las siguientes:**
+
+-  **Street.Suffix** con la cantidad de 300662 de datos NA
+-  **Street.Prefix** con la cantidad de 292462 de datos NA
+-  **End_Date_Time** Con la cantidad de 161658 de datos NA
+-  **Dispatch.Date...Time** con la cantidad de 49029 de datos NA
+-  **Block.Address** con la cantidad de 26206 de datos NA
+
+Con la observación de las mayorías de datos NA dentro de la colección, se toma la decisión de eliminar las variables de Street.suffix , Street.Prefix , End_Date_Time y Dispatch.Date…Time debido a que no aportan en el estudio necesario para los problemas planteados a solucionar.
+
+La variable con la cantidad de NA mas alta que nos interesa es Block.Address pero la cantidad de datos NA se puede limpiar ya que corresponden a 26206 datos de un total de 306094 datos de la colección.
+
+Con esto se revisa que se limpien todos los valores NA
+
+```{r}
+library(dplyr)
+
+crimeneSinNA <- na.omit(Crimes) #Omite las filas con que poseen NA
+crimenesSinVacio <- select(crimeneSinNA,-Dispatch.Date...Time,-Street.Suffix,-Street.Prefix,-End_Date_Time)# Asigna una tabla sin columnas en parámetro
+
+crimenes <- crimenesSinVacio[(crimenesSinVacio$Crime.Name1 != ''),]# Omisión de valores en blanco columna
+crimenes <- crimenes[(crimenes$Crime.Name2 != ''),]# Omisión de valores en blanco 
+crimenes <- crimenes[(crimenes$Crime.Name3 != ''),]# Omisión de valores en blanco 
+crimenes <- crimenes[(crimenes$Police.District.Name != ''),]# Omisión de valores en blanco columna
+crimenes <- crimenes[(crimenes$Block.Address != ''),]# Omisión de valores en blanco 
+crimenes <- crimenes[(crimenes$City != ''),]# Omisión de valores en blanco 
+crimenes <- crimenes[(crimenes$Sector != ''),]# Omisión de valores en blanco 
+crimenes <- crimenes[(crimenes$Beat != ''),]# Omisión de valores en blanco 
+crimenes <- crimenes[(crimenes$PRA != ''),]#  Omisión de valores en blanco 
+crimenes <- crimenes[(crimenes$Street.Name != ''),]# Omisión de valores en blanco
+crimenes <- crimenes[(crimenes$Street.Type != ''),]# Omisión de valores en blanco
+
+
+sapply(crimenes, function(x) sum((x)==''))#Comprobacion de valores en blanco o inexistentes
+
+```
+Como se observa, ya no existen valores NA.
+
+Aplicamos summary a las variables importantes para evaluar las medias de tendencia central, cabe mencionar que solo tres variables admiten un analisis de este tipo, donde las tres son variables intervalos.
+```{r}
+summary(crimenes[c("Year","Month","Victims")]) # Variables importantes en la exploracion, las cuales tiene sentido revisar su mediana su maximo, su minimo
+```
+
+### Correlación lineal
+A continuacion tenemos Matriz de correlacion de la coleccion en exploracion.
+```{r,warning=FALSE}
+library(PerformanceAnalytics)
+crimesNumeric <- crimenes[c( "Victims","Year", "Month", "Day","X","CR.Number")]
+sapply(crimesNumeric, is.numeric) #comprobacion atributos numéricos
+chart.Correlation(crimesNumeric) #Matriz de correlación
+```
+
+podemos determinar que entre las variables cualitativas del proyecto existe una correlación muy débil entre las victimas y variables como los días y el año por ende podría decirse que la cantidad de victimas de un delito dentro de la muestra no se relaciona fuertemente ni al año ni al mes ni al día que fue cometido. donde podemos ver una correlación significativa es entre el cr.number (código del delito) y el año, esto se puede deber a que esta variable depende del año en el que fue iniciado el proceso
+
+### Crimenes por año
+
+Utilizando el atributo `Year` es posible visualizar los delitos cometidos por cada año
+
+```{r}
+library(tidyverse)
+
+barplot(table(crimenes$Year), 
+        main = "Delitos por Año", # Título
+        ylab = "Delitos", xlab = "Año",col = "lightblue") #Frecuencia de crimenes por año
+```
+A partir del año `2017` existe una disminución de los delitos cometidos, sin embargo, el año `2017` y `2022` poseen una diferencia considerable con los demás años.
+
+Para aclarar el comportamiento de estos, se busca graficar el comportamiento por mes a partir del atributo `Month` filtrado por `Year` de los años `2016` y `2022` .
+
+```{r}
+library(tidyverse)
+cr2016 <- crimenes %>%
+  filter(Year == 2016) %>%   # Obtener los delitos del año 2016
+  group_by(Month) %>% # Agrupado por Mes
+  summarise(total = sum(Victims)) %>% # Atributo "total" alberga la sumatoria de victimas
+  arrange(-total)
+
+ggplot(cr2016)+
+  geom_bar(aes(x = Month, y = total), stat="identity")+ 
+    coord_flip() +  # Grafico horizontal
+  ggtitle("Delitos cometidos por Mes en 2016") + # título del gráfico
+  xlab("Mes") + ylab("Delitos")  #etiquetas
+
+
+```
+
+```{r}
+library(tidyverse)
+cr2022 <- crimenes %>%
+  filter(Year == 2022) %>%   # Obtener los delitos del año 2022
+  group_by(Month) %>% # Agrupado por Mes
+  summarise(total = sum(Victims)) %>% # Atributo "total" alberga la sumatoria de victimas
+  arrange(-total)
+
+ggplot(cr2022)+
+  geom_bar(aes(x = Month, y = total), stat="identity")+ 
+    coord_flip() +  # Grafico horizontal
+  ggtitle("Delitos cometidos por Mes en 2022") + # Título del gráfico
+  xlab("Mes") + ylab("Delitos")  #Etiquetas
+
+```
+
+Los delitos cometidos durante el año `2016` son registrados desde el mes de julio hasta el mes de diciembre, mientras que el año `2022` los delitos son registrados desde el mes de enero hasta una parte del mes de agosto. Debido a lo anterior estos años poseen una gran diferencia en sus registros respecto a los otros años.
+
+### Delitos cometidos por Mes
+
+Mediante el atributo `Month` es posible visualizar los delitos por mes
+
+```{r}
+library(tidyverse)
+barplot(table(crimenes$Month), 
+        main = "Delitos cometidos por Mes", # Título
+        ylab = "Delitos", xlab = "Mes",col = "lightblue") #Frecuencia de crimenes por Mes
+```
+
+Se puede visualizar que los delitos se realizan durante todos los meses del año con una frecuencia aproximadamente similar, sin embargo se puede destacar el mes de julio. Esto se puede deber al registro de datos en los años `2016` y  `2022` que se menciona anteriormente.
+
+
+### Cantidad de Victimas por delito
+
+Utilizando el atributo `Victims` es posible graficar la cantidad de víctimas por delito
+
+```{r}
+library(tidyverse)
+barplot(table(crimenes$Victims), 
+        main = "Cantidad de Victimas\npor delito", # Título
+        ylab = "Delitos", xlab = "Cantidad de victimas",col = "lightblue") #Frecuencia de Victimas
+
+table(crimenes$Victims) # Frecuencia de victimas 
+```
+Se puede visualizar que la cantidad de víctimas total por delito va descendiendo conforme aumenta la cantidad de víctimas afectadas. Es destacable que la mayoría de los delitos son perpetuados afectando 1 sola persona, esto puede ser importante para identificar la naturaleza del delito que se detallará más adelante.
+
+
+### Análisis de crimenes ejecutados por etapa del dia
+
+Existen algunos atributos que poseen el valor categorico de `True` o `False`, haciendo referencia a si el crimen fue executado en la mañana o en la noche, por esta razon es que cambiamos los valores de True y False por los valores especificos de `Mañana` y `Noche`
+
+```{r, warning=FALSE}
+library(dplyr)
+library(ggplot2)
+
+Crimes$Committed_At_Morning <- ifelse(Crimes$Committed_At_Morning == "True", "Moorning", "Aftermoon")
+# Grouped by outcome
+by_year <- Crimes %>% 
+  group_by(Year)
+
+# Add grouping by gender in addition
+by_committed <- by_year %>% 
+  summarise(
+    n_cases  = n(),
+    n_afternoon = sum(Committed_At_Morning == "Aftermoon", na.rm=T),
+    n_moorning = sum(Committed_At_Morning == "Moorning", na.rm=T))
+
+ggplot(data = Crimes)+
+  geom_bar(mapping = aes(x = Year, fill = Committed_At_Morning), position = "dodge")+
+  labs(title = "Diferencia de crimenes cometidos\n en la tarde y en la mañana")
+```
+
+En este gráfico observamos la cual es la diferencia que existe de cada año con la cantidad de crimenes que se comenten durante la etapa del dia, es decir durante que periodo del dia ocurren más crimenes.
+
+
+### Análisis de crimenes ejecutados por tipo de crimen
+
+```{r, }
+Crimes <- Crimes[(Crimes$Crime.Name1 != ''),]
+
+df <- Crimes %>% group_by(Year, Crime.Name1) %>%
+  summarise(rec_count = n()) %>%
+  arrange(desc(Year), desc(rec_count))
+
+ggplot(df, aes(x=Year, y=rec_count, group=Crime.Name1)) +
+  geom_line(aes(color=Crime.Name1))+
+  geom_point(aes(color=Crime.Name1))
+```
+
+En este grafico de puntos, observamos la cantidad de crimenes que se cometieron a lo largo de los años, agrupados por el tipo de crimen que corresponde.
+
+
+### Análisis de crimenes ejecutados categoria de crimen
+
+```{r}
+CrimesWithoutCrimeName2 <- Crimes[(Crimes$Crime.Name2 != ''),]
+
+new_data <- CrimesWithoutCrimeName2 %>% group_by(Year, Crime.Name2) %>%
+  summarise(rec_count = n()) %>%
+  arrange(desc(Year), desc(rec_count))
+
+plt <- ggplot(new_data, aes(x=Year, y=rec_count, group=Crime.Name2)) +
+  geom_line(aes(color=Crime.Name2))+
+  geom_point(aes(color=Crime.Name2)) + 
+  theme(legend.position='bottom', 
+        legend.justification='left',
+        legend.direction='horizontal')
+
+plt
+```
+
+En este grafico de puntos, observamos la cantidad de crimenes que se cometieron a lo largo de los años, agrupados por el tipo de crimen (Legenda inferior) correspondiente a una categoria más especifica que la anterior, es decir esta categoria nos indica a que tipo de crimen especifico corresponde. 
+
+
+### Análisis de porcentaje de tipos de emergencias acudidas por los policías
+
+```{r}
+library(ggplot2)
+library(dplyr)
+
+porcentaje <- crimenes %>%
+  group_by(Crime.Name1)%>%
+  count()%>%
+    ungroup() %>%
+  mutate(percentage=`n`/sum(`n`)*100)#sacar el porcentaje de recurrencia en el data set
+
+
+ggplot(porcentaje, aes(x=1, y=percentage, fill=Crime.Name1)) +
+  geom_bar(stat="identity") +
+  geom_text(aes(label = paste0(round(percentage,1),"%")), 
+            position = position_stack(vjust = 0.5)) +
+  coord_polar(theta = "y") +
+  labs(fill = "Tipos de Crimenes")+
+  theme_void() 
+```
+
+En este gráfico se ve representados los porcentajes de cada uno de los tipos de emergencias que a acudió la policía dentro de la muestra, en él se puede observar que aproximadamente un 48.6% de los delitos cometidos son en contra de la propiedad, seguido por "otros crímenes" con un 21.7%, que se pueden categorizar como crímenes que no son ofensas directas a personas, propiedad privada o a la sociedad, por ejemplo personas extraviadas o intento de suicidio, en tercer lugar tenemos crímenes contra la sociedad, luego contra una persona y por último falsas alarmas.
+
+
+
+### las 6 ciudades con mas delitos registrados
+Utilizando el atributo City es posible obtener una comparacion de la cantidad de crimenes entre ciudades.
+```{r}
+library(tidyverse)
+crimenes_ciudades <- crimenes %>% #se accede a crimenes para luego guardar en un subconjunto de datos
+  group_by(City) %>% # se agrupa por ciudad
+  tally() # se cuentas cuantas veces se repiten
+crimenes_ciudades <- head(crimenes_ciudades[order(crimenes_ciudades$n, decreasing=TRUE),], n = 6) # se filtran de mayor a menor y se toman los primeros 6 valores
+ggplot(crimenes_ciudades, aes(x = reorder(City , -n), y = n )) + # se indican que se grafique los valores en crimenes_ciudades
+ geom_bar(stat="identity", position="dodge" , )+
+  ggtitle("Las 6 ciudades con mas delitos registrados")+
+  labs( x ="Ciudades" , y="Delitos" )   # se define nombres para x y para y.
+
+```
+
+En el gráfico anterior podemos observar que ocurren muchos delitos en la ciudad de SILVER SPRING lo cual es un poco extraño ya que ocurren 94238 crímenes de un total de 274045 un poco más de un tercio de los delitos totales.
+
+# Preguntas y problemas asociadas al proyecto seleccionado
+En los gráficos realizados para determinar la moda de la cantidad de victimas por delitos, es posible observar un patrón recurrente en los delitos de victimas individuales, pero, ¿es posible evitar estos delitos no estando solos? o ¿simplemente se dan mas delitos con naturaleza de victimas individuales?
+
+En el correr de los años los delitos vespertinos han sido de mayor recurrencia, en comparación a los delitos matutinos (aproximadamente el doble, ¿es posible la explicación de este comportamiento mediante otra variable?
+
+En el gráfico realizado para determinar las ciudades más afectadas por los crímenes se puede destacar que Silver Spring, es la ciudad que alberga más crímenes, teniendo un aproximado de más de un tercio de la criminalidad dentro de esta muestra, hemos considerado que este comportamiento es de interés para la investigación ¿Existe alguna clase de sesgo dentro de la muestra?
+
+En el grafico donde se pueden visualizar los delitos cometidos por años, se puede ver claramente una tendencia descendente desde el año 2017 hasta el año actual, ¿este fenómeno se da en todos los tipos de delitos por igual o hay alguno que tenga mayor repercusión en este apartado?
+
+# Trabajo Realizado
+
+**Ricardo Millanao** : 
+  - Limpieza de valores atípicos a nivel de código
+  - Generación de matriz de correlaciones a nivel de código
+  - Análisis y generación de gráficos sección 2 del documento
+  
+**Camilo Godoy** :
+  - Descripción de variables, que representan o significan y las más importantes para la exploración.
+  - Descripción de valores atípicos en el ámbito de interpretación de los resultados.
+  - Descripción de las medidas de tendencia central mediante summary.
+  - Análisis y generación de gráfico las 6 ciudades con más delitos.
+  
+**Nicolas Pereira** : 
+  - Introducción
+  - Análisis y generación de gráficos sección 2 del documento, grafico de barras y grafico de puntos
+  
+ **Diego Garrido** :
+  - Desarrollo de puntos 1 y 2
+  - Análisis de matriz de correlaciones
+  - Análisis y generación de gráfico de tarta
+  - Corrección de ortografía y redacción
+  
+# Enlace a video:
+
+https://www.youtube.com/watch?v=kf3WMhdeU5U
