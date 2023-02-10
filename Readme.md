@@ -4,7 +4,6 @@ Para este proyecto  se tiene en posesión un dataset que representa las caracter
 
 Tomaremos como labor principal la inspección de los datos recopilados en este dataset, el análisis  y la detección de problemáticas relacionadas a estos llamados. En base a esto se realizará un modelo de machine learning a modo de saber si es posible responder a las problemáticas detectadas
 
-
 # Trabajo
 
 Este proyecto se aborda mediante 3 hitos:
@@ -18,9 +17,6 @@ Data set: https://www.kaggle.com/datasets/jgiigii/uscrimesdataset
 Datos CSV utilizados (Actualización 14/11/2022): https://gitlab.com/ricardomillanaob1/datasets/-/tree/master
 
 Tambien se poseen los datos generados durante la ejecucion del proyecto
-
-# Video
-Para el Hito3 se realiza un video resumen: https://drive.google.com/file/d/1zfZTFtsrE9HO3cE1z-Q5T8WQf1PBhpTS/view?usp=share_link
 
 # Anexo
 HTML con graficos visibles: https://drive.google.com/file/d/1qQOC8IJBTg1sOb5pnacXovYhisafOH3T/view?usp=sharing
